@@ -4,6 +4,7 @@ from flaskext.mysql import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from pymysql.cursors import DictCursor
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -28,11 +29,29 @@ def about():
 
 @app.route('/articles')
 def articles():
-	return render_template('articles.html', articles = Articles)
+	conn = mysql.connect()
+	cursor = conn.cursor()
+
+	result = cursor.execute("SELECT * FROM articles")
+	articles = cursor.fetchall()
+
+	if result > 0:
+		return render_template('articles.html', articles=articles)
+	else:
+		msg = 'No Articles Found'
+		return render_template('articles.html', msg=msg)
+
+	cursor.close()
 
 @app.route('/article/<string:id>/')
 def article(id):
-	return render_template('article.html', id = id)
+	conn = mysql.connect()
+	cursor = conn.cursor()
+
+	result = cursor.execute("SELECT * FROM articles WHERE id = %s", [id])
+	article = cursor.fetchone()
+
+	return render_template('article.html', article=article)
 
 class RegisterForm(Form):
 	name = StringField('Name', [validators.Length(min=1, max=50)])
@@ -98,15 +117,65 @@ def login():
 
 	return render_template('login.html')
 
+def is_logged_in(f):
+	@wraps(f)
+	def wrap(*args, **kwargs):
+		if 'logged_in' in session:
+			return f(*args, **kwargs)
+		else:
+			flash('Unauthorized, Please login', 'danger')
+			return redirect(url_for('login'))
+	return wrap
+
 @app.route('/dashboard')
+@is_logged_in
 def dashboard():
-	return render_template('dashboard.html')
+	conn = mysql.connect()
+	cursor = conn.cursor()
+
+	result = cursor.execute("SELECT * FROM articles")
+	articles = cursor.fetchall()
+
+	if result > 0:
+		return render_template('dashboard.html', articles=articles)
+	else:
+		msg = 'No Articles Found'
+		return render_template('dashboard.html', msg=msg)
+
+	cursor.close()
 
 @app.route('/logout')
 def logout():
 	session.clear()
 	flash('You are now logged out', 'success')
 	return redirect(url_for('login'))		
+
+@app.route('/add_article', methods=['GET', 'POST'])
+@is_logged_in
+def add_article():
+	form = ArticleForm(request.form)
+	if request.method == 'POST' and form.validate():
+		title = form.title.data
+		body = form.body.data
+
+		conn = mysql.connect()
+		cursor = conn.cursor()
+
+		cursor.execute("INSERT INTO articles(title, body, author) VALUES(%s, %s, %s)", (title, body, session['username']))
+
+		conn.commit()
+
+		cursor.close()
+
+		flash('Article Created', 'success')
+
+		return redirect(url_for('dashboard'))
+
+	return render_template('add_article.html', form=form)
+
+class ArticleForm(Form):
+	title = StringField('Title', [validators.Length(min=1, max=200)])
+	body = TextAreaField('Body', [validators.Length(min=30)])
 
 if __name__ == '__main__':
 	app.secret_key='secret123'
