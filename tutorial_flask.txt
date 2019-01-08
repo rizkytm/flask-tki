@@ -1,0 +1,11 @@
+tutorial flask:
+
+mkdir test
+cd test
+pip install flask
+python app.py
+
+dependency yang diinstall:
+pip install flask-mysql
+pip install flask-wtf
+pip install passlib

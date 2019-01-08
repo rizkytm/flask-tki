@@ -173,6 +173,56 @@ def add_article():
 
 	return render_template('add_article.html', form=form)
 
+@app.route('/edit_article/<string:id>', methods=['GET', 'POST'])
+@is_logged_in
+def edit_article(id):
+	conn = mysql.connect()
+	cursor = conn.cursor()
+
+	result = cursor.execute("SELECT * FROM articles WHERE id = %s", [id])
+	article = cursor.fetchone()
+
+	form = ArticleForm(request.form)
+
+	form.title.data = article['title']
+	form.body.data = article['body']
+
+	if request.method == 'POST' and form.validate():
+		title = request.form['title']
+		body = request.form['body']
+
+		conn = mysql.connect()
+		cursor = conn.cursor()
+
+		cursor.execute("UPDATE articles SET title=%s, body=%s WHERE id = %s", (title, body, id))
+
+		conn.commit()
+
+		cursor.close()
+
+		flash('Article Updated', 'success')
+
+		return redirect(url_for('dashboard'))
+
+	return render_template('edit_article.html', form=form)
+
+@app.route('/delete_article/<string:id>', methods=['POST'])
+@is_logged_in
+def delete_article(id):
+
+	conn = mysql.connect()
+	cursor = conn.cursor()
+
+	cursor.execute("DELETE FROM articles WHERE id = %s", [id])	
+
+	conn.commit()
+
+	cursor.close()
+
+	flash('Article Deleted', 'success')
+
+	return redirect(url_for('dashboard'))
+
 class ArticleForm(Form):
 	title = StringField('Title', [validators.Length(min=1, max=200)])
 	body = TextAreaField('Body', [validators.Length(min=30)])
