@@ -25,6 +25,10 @@
     
     https://conda.io/docs/download.html
 
+> install GLoVe Pre-Train Wikipedia 2014 Word Embedding :
+    
+    https://nlp.stanford.edu/data/glove.6B.zip
+
 > install package via anaconda :
 
     conda install -c anaconda gensim
