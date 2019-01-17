@@ -7,6 +7,10 @@
 
 ## Installation
 
+> install Anaconda :
+    
+    https://conda.io/docs/download.html
+    
 > Install flask :
     
     mkdir test :
@@ -14,10 +18,6 @@
     cd test
     pip install flask
     python app.py
-
-> install Anaconda :
-    
-    https://conda.io/docs/download.html
 
 > Download GLoVe Pre-Train Wikipedia 2014 Word Embedding, ekstrak ke folder project :
     
