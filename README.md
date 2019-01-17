@@ -25,7 +25,7 @@
     
     https://conda.io/docs/download.html
 
-> install GLoVe Pre-Train Wikipedia 2014 Word Embedding :
+> Download GLoVe Pre-Train Wikipedia 2014 Word Embedding, ekstrak ke folder project :
     
     https://nlp.stanford.edu/data/glove.6B.zip
 
