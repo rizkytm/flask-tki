@@ -15,12 +15,6 @@
     pip install flask
     python app.py
 
-    dependency yang diinstall:
-
-    pip install flask-mysql
-    pip install flask-wtf
-    pip install passlib
-
 > install Anaconda :
     
     https://conda.io/docs/download.html
@@ -34,6 +28,8 @@
     conda install -c anaconda gensim
     conda install -c plotly plotly 
     conda install -c conda-forge wordcloud
+    conda install -c anaconda nltk 
+    conda install -c anaconda flask-wtf
 
 > Tutorial run via flask (linux) :
 
